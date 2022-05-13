@@ -3,10 +3,8 @@ import Webcam from "react-webcam"
 import { Camera } from "@mediapipe/camera_utils"
 import { Hands, Results } from "@mediapipe/hands"
 import drawCanvas from "./DrawCanvas.jsx"
-import { Canvas } from "@react-three/fiber"
-import FingerMesh from "./FingerMesh"
-import Buttons from "./Buttons"
 import useWindowSize from "../hooks/useWindowSize.jsx"
+import ModelContainer from "./ModelContainer.jsx"
 
 export default function FingerApp() {
   const webcamRef = useRef(null)
@@ -29,7 +27,7 @@ export default function FingerApp() {
     })
 
     hands.setOptions({
-      maxNumHands: 2,
+      maxNumHands: 1,
       modelComplexity: 1,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
@@ -55,26 +53,12 @@ export default function FingerApp() {
     facingMode: "user",
   }
 
-  /** 検出結果をconsoleに出力する */
-  const OutputData = () => {
-    const results = resultsRef.current
-    console.log(results.multiHandLandmarks)
-  }
   return (
     <>
       <Webcam audio={false} className="invisible absolute" width={WINDOW_SIZE.width / 2 || 1440} height={WINDOW_SIZE.height || 900} ref={webcamRef} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} />
       <div className="bg-[#683aff] h-screen w-full flex">
-        <div className="w-1/2">
-          <Canvas className="absolute top-0 left-0 z-0">
-            <ambientLight intensity={0.3} />
-            <directionalLight position={[10, 10, 10]} intensity={1} />
-            <FingerMesh scale={[20, 20, 20]} position={[0, -0.8, 0]} />
-          </Canvas>
-          <Buttons />
-        </div>
-        <div className="w-1/2">
-          <canvas ref={canvasRef} className="bg-white w-full h-full" />
-        </div>
+        <ModelContainer />
+        <canvas ref={canvasRef} className="bg-white w-1/2 h-full" />
       </div>
     </>
   )
