@@ -2,12 +2,12 @@ import { useRef, useState, useEffect } from "react"
 import * as tf from "@tensorflow/tfjs"
 import * as handpose from "@tensorflow-models/handpose"
 import Webcam from "react-webcam"
-import { drawHand } from "../utilities/utilities"
 import * as fp from "fingerpose"
 import useWindowSize from "../hooks/useWindowSize"
 import { useAtom } from "jotai"
 import { isSnapAtom } from "./FingerContext"
 import { ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture } from "../fingerpose/gestures"
+import { detect } from "./detect"
 
 export default function TensorHand() {
   const webcamRef = useRef(null)
@@ -18,7 +18,6 @@ export default function TensorHand() {
   const [isSnap, setIsSnap] = useAtom(isSnapAtom)
   const [isConfidence, setIsConfidence] = useState(0)
   const knownGestures = [ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
-  const CONFIDENCE = 8 // set confident above 80%
 
   const videoConstraints = {
     facingMode: camFace,
@@ -27,46 +26,50 @@ export default function TensorHand() {
   const runHandpose = async () => {
     const net = await handpose.load()
     setInterval(() => {
-      detect(net)
+      detectPlayerGesture(50, net)
     }, 100)
   }
 
-  const detect = async (net) => {
-    if (typeof webcamRef.current === "undefined" || webcamRef.current === null || webcamRef.current.video.readyState !== 4) return
+  function detectPlayerGesture(requiredDuration, net) {
+    let lastGesture = ""
+    let gestureDuration = 0
 
-    const video = webcamRef.current.video
-    // Set video width
-    webcamRef.current.video.width = WINDOW_SIZE.width / 2 || 1440
-    webcamRef.current.video.height = WINDOW_SIZE.height || 900
-    // Set canvas height and width
-    canvasRef.current.width = WINDOW_SIZE.width / 2 || 1440
-    canvasRef.current.height = WINDOW_SIZE.height || 900
-
-    const hand = await net.estimateHands(video)
-
-    if (hand.length > 0) {
-      const GE = new fp.GestureEstimator(knownGestures)
-
-      const gesture = await GE.estimate(hand[0].landmarks, CONFIDENCE)
-
-      if (gesture.gestures !== undefined && gesture.gestures.length > 0) {
-        let result = gesture.gestures.reduce((p, c) => {
-          return p.score > c.score ? p : c
-        })
-        setIsConfidence(Math.round(result.score * 100) / 10)
-        setIsSnap(result.name)
-      }
-    } else {
-      // reset if hand's out of camera
+    const predictNonblocking = () => {
       setTimeout(() => {
-        setIsConfidence(0.0)
-        setIsSnap("wave 1")
-      }, 1500)
+        const predictionStartTS = Date.now()
+
+        detect(net, webcamRef, canvasRef, WINDOW_SIZE, knownGestures).then((playerGesture) => {
+          if (playerGesture != "") {
+            if (playerGesture.name == lastGesture) {
+              // player keeps holding the same gesture
+              // -> keep timer running
+              const deltaTime = Date.now() - predictionStartTS
+              gestureDuration += deltaTime
+            } else {
+              // detected a different gesture
+              // -> reset timer
+              lastGesture = playerGesture.name
+              gestureDuration = 0
+            }
+          } else {
+            lastGesture = ""
+            gestureDuration = 0
+          }
+
+          if (gestureDuration < requiredDuration) {
+            // update timer and repeat
+            predictNonblocking()
+          } else {
+            // player result available
+            // -> stop timer and check winner
+            setIsConfidence(Math.round(playerGesture.score * 100) / 10)
+            setIsSnap(lastGesture)
+          }
+        })
+      }, 0) // in order to prevent block rendering
     }
 
-    // Draw mesh
-    const ctx = canvasRef.current.getContext("2d")
-    drawHand(hand, ctx)
+    predictNonblocking()
   }
 
   useEffect(() => {
