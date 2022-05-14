@@ -3,6 +3,7 @@ import { useGLTF, useAnimations } from "@react-three/drei"
 import FingerModel from "../models/rigget_V16.glb"
 import { useAtom } from "jotai"
 import { isSnapAtom } from "./FingerContext"
+import { gsap } from "gsap"
 
 export default function FingerMesh({ ...props }) {
   const group = useRef()
@@ -12,9 +13,24 @@ export default function FingerMesh({ ...props }) {
   const [isSnap, setIsSnap] = useAtom(isSnapAtom)
 
   useEffect(() => {
-    actions[isSnap]?.reset().fadeIn(0.5).play()
+    // because there's no data for 0
+    if (isSnap === "0") {
+      actions["wave 1"]?.reset().fadeIn(0.5).play()
+      return () => void actions["wave 1"]?.fadeOut(0.5)
+    }
 
+    actions[isSnap]?.reset().fadeIn(0.5).play()
     return () => void actions[isSnap]?.fadeOut(0.5)
+  }, [isSnap])
+
+  useEffect(() => {
+    // if isSnap is a number, them slightly change the position of hand model
+    if (!isNaN(isSnap)) {
+      gsap.to(group.current.position, {
+        y: -0.6 * isSnap + 1,
+        duration: 0.5,
+      })
+    }
   }, [isSnap])
   return (
     <group ref={group} {...props} dispose={null}>
