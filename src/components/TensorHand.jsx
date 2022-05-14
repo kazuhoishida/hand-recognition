@@ -3,69 +3,58 @@ import * as tf from "@tensorflow/tfjs"
 import * as handpose from "@tensorflow-models/handpose"
 import Webcam from "react-webcam"
 import { drawHand } from "../utilities/utilities"
-
 import * as fp from "fingerpose"
-import victory from "../images/victory.png"
-import thumbs_up from "../images/thumb-up.png"
+import useWindowSize from "../hooks/useWindowSize"
+import { useAtom } from "jotai"
+import { isSnapAtom } from "./FingerContext"
+import { ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture } from "../fingerpose/gestures"
 
 export default function TensorHand() {
   const webcamRef = useRef(null)
   const canvasRef = useRef(null)
-
+  const WINDOW_SIZE = useWindowSize()
   const [camState, setCamState] = useState("on")
   const [camFace, setCamFace] = useState("environment")
+  const [isSnap, setIsSnap] = useAtom(isSnapAtom)
 
   const videoConstraints = {
     facingMode: camFace,
   }
 
-  ///////// NEW STUFF ADDED STATE HOOK
-  const [emoji, setEmoji] = useState(null)
-  const images = { thumbs_up: thumbs_up, victory: victory }
-
-  ///////// NEW STUFF ADDED STATE HOOK
   const runHandpose = async () => {
     const net = await handpose.load()
-    console.log("Handpose model loaded.")
-    //  Loop and detect hands
     setInterval(() => {
       detect(net)
-    }, 10)
+    }, 500)
   }
 
   const detect = async (net) => {
-    // Check data is available
     if (typeof webcamRef.current !== "undefined" && webcamRef.current !== null && webcamRef.current.video.readyState === 4) {
-      // Get Video Properties
       const video = webcamRef.current.video
-      const videoWidth = webcamRef.current.video.videoWidth
-      const videoHeight = webcamRef.current.video.videoHeight
-
+      // const videoWidth = webcamRef.current.video.videoWidth
+      // const videoHeight = webcamRef.current.video.videoHeight
       // Set video width
-      webcamRef.current.video.width = videoWidth
-      webcamRef.current.video.height = videoHeight
-
+      webcamRef.current.video.width = WINDOW_SIZE.width / 2 || 1440
+      webcamRef.current.video.height = WINDOW_SIZE.height || 900
       // Set canvas height and width
-      canvasRef.current.width = videoWidth
-      canvasRef.current.height = videoHeight
+      canvasRef.current.width = WINDOW_SIZE.width / 2 || 1440
+      canvasRef.current.height = WINDOW_SIZE.height || 900
 
-      // Make Detections
       const hand = await net.estimateHands(video)
-      // console.log(hand)
 
-      ///////// NEW STUFF ADDED GESTURE HANDLING
-      const knownGestures = [fp.Gestures.VictoryGesture, fp.Gestures.ThumbsUpGesture]
+      const knownGestures = [ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
       if (hand.length > 0) {
         const GE = new fp.GestureEstimator(knownGestures)
-        const gesture = await GE.estimate(hand[0].landmarks, 5)
+        // set confident above 80%
+        const CONFIDENCE = 8
+        const gesture = await GE.estimate(hand[0].landmarks, CONFIDENCE)
         if (gesture.gestures !== undefined && gesture.gestures.length > 0) {
-          // console.log(gesture.gestures)
           let result = gesture.gestures.reduce((p, c) => {
             return p.score > c.score ? p : c
           })
-          console.log(result)
+          console.log(result.name)
 
-          setEmoji(result.name)
+          setIsSnap(result.name)
         }
       }
 
@@ -80,52 +69,9 @@ export default function TensorHand() {
   }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <Webcam
-          ref={webcamRef}
-          muted={true}
-          style={{
-            position: "absolute",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zindex: 9,
-            width: "80vw",
-            height: "80vh",
-          }}
-        />
-
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: "absolute",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zindex: 9,
-            width: "60vw",
-            // height: "90vh"
-          }}
-        />
-        <img
-          src={images[emoji]}
-          alt="The reaction"
-          style={{
-            position: "absolute",
-            marginLeft: "auto",
-            marginRight: "auto",
-            right: "10%",
-            top: "10%",
-            textAlign: "center",
-            height: 100,
-          }}
-        />
-      </header>
+    <div className="relative w-1/2 h-full z-1">
+      <Webcam ref={webcamRef} muted={true} className="absolute top-0 left-0" />
+      <canvas ref={canvasRef} className="absolute top-0 left-0" />
     </div>
   )
 }

@@ -34,6 +34,10 @@ const style = {
 
 // Drawing function
 export const drawHand = (predictions, ctx) => {
+  const width = ctx.canvas.width
+  ctx.scale(-1, 1)
+  ctx.translate(-width, 0)
+
   // Check if we have predictions
   if (predictions.length > 0) {
     // Loop through each prediction
