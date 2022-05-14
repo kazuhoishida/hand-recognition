@@ -12,6 +12,11 @@ export default function FingerMesh({ ...props }) {
   const [isSnap, setIsSnap] = useAtom(isSnapAtom)
 
   useEffect(() => {
+    // because there's no data for 0
+    if (isSnap === "0") {
+      actions["wave 1"]?.reset().fadeIn(0.5).play()
+      return () => void actions["wave 1"]?.fadeOut(0.5)
+    }
     actions[isSnap]?.reset().fadeIn(0.5).play()
 
     return () => void actions[isSnap]?.fadeOut(0.5)

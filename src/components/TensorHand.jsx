@@ -7,7 +7,7 @@ import * as fp from "fingerpose"
 import useWindowSize from "../hooks/useWindowSize"
 import { useAtom } from "jotai"
 import { isSnapAtom } from "./FingerContext"
-import { ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture } from "../fingerpose/gestures"
+import { ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture } from "../fingerpose/gestures"
 
 export default function TensorHand() {
   const webcamRef = useRef(null)
@@ -16,6 +16,9 @@ export default function TensorHand() {
   const [camState, setCamState] = useState("on")
   const [camFace, setCamFace] = useState("environment")
   const [isSnap, setIsSnap] = useAtom(isSnapAtom)
+  const [isConfidence, setIsConfidence] = useState(0)
+  const knownGestures = [ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
+  const CONFIDENCE = 8 // set confident above 80%
 
   const videoConstraints = {
     facingMode: camFace,
@@ -25,43 +28,45 @@ export default function TensorHand() {
     const net = await handpose.load()
     setInterval(() => {
       detect(net)
-    }, 500)
+    }, 100)
   }
 
   const detect = async (net) => {
-    if (typeof webcamRef.current !== "undefined" && webcamRef.current !== null && webcamRef.current.video.readyState === 4) {
-      const video = webcamRef.current.video
-      // const videoWidth = webcamRef.current.video.videoWidth
-      // const videoHeight = webcamRef.current.video.videoHeight
-      // Set video width
-      webcamRef.current.video.width = WINDOW_SIZE.width / 2 || 1440
-      webcamRef.current.video.height = WINDOW_SIZE.height || 900
-      // Set canvas height and width
-      canvasRef.current.width = WINDOW_SIZE.width / 2 || 1440
-      canvasRef.current.height = WINDOW_SIZE.height || 900
+    if (typeof webcamRef.current === "undefined" || webcamRef.current === null || webcamRef.current.video.readyState !== 4) return
 
-      const hand = await net.estimateHands(video)
+    const video = webcamRef.current.video
+    // Set video width
+    webcamRef.current.video.width = WINDOW_SIZE.width / 2 || 1440
+    webcamRef.current.video.height = WINDOW_SIZE.height || 900
+    // Set canvas height and width
+    canvasRef.current.width = WINDOW_SIZE.width / 2 || 1440
+    canvasRef.current.height = WINDOW_SIZE.height || 900
 
-      const knownGestures = [ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
-      if (hand.length > 0) {
-        const GE = new fp.GestureEstimator(knownGestures)
-        // set confident above 80%
-        const CONFIDENCE = 8
-        const gesture = await GE.estimate(hand[0].landmarks, CONFIDENCE)
-        if (gesture.gestures !== undefined && gesture.gestures.length > 0) {
-          let result = gesture.gestures.reduce((p, c) => {
-            return p.score > c.score ? p : c
-          })
-          console.log(result.name)
+    const hand = await net.estimateHands(video)
 
-          setIsSnap(result.name)
-        }
+    if (hand.length > 0) {
+      const GE = new fp.GestureEstimator(knownGestures)
+
+      const gesture = await GE.estimate(hand[0].landmarks, CONFIDENCE)
+
+      if (gesture.gestures !== undefined && gesture.gestures.length > 0) {
+        let result = gesture.gestures.reduce((p, c) => {
+          return p.score > c.score ? p : c
+        })
+        setIsConfidence(Math.round(result.score * 100) / 10)
+        setIsSnap(result.name)
       }
-
-      // Draw mesh
-      const ctx = canvasRef.current.getContext("2d")
-      drawHand(hand, ctx)
+    } else {
+      // reset if hand's out of camera
+      setTimeout(() => {
+        setIsConfidence(0.0)
+        setIsSnap("wave 1")
+      }, 1500)
     }
+
+    // Draw mesh
+    const ctx = canvasRef.current.getContext("2d")
+    drawHand(hand, ctx)
   }
 
   useEffect(() => {
@@ -72,6 +77,7 @@ export default function TensorHand() {
     <div className="relative w-1/2 h-full z-1">
       <Webcam ref={webcamRef} muted={true} className="absolute top-0 left-0" />
       <canvas ref={canvasRef} className="absolute top-0 left-0" />
+      <p className="absolute bottom-4 right-4 z-50 text-20">{isConfidence}%</p>
     </div>
   )
 }
