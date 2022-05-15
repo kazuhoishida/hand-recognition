@@ -1,6 +1,6 @@
 import * as fp from "fingerpose"
-import { drawHand } from "../utilities/utilities"
-import { ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture } from "../fingerpose/gestures"
+import { drawHand } from "./drawHand"
+import { ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture, SixGesture, SevenGesture, EightGesture, NineGesture } from "../fingerpose/gestures"
 
 export const detect = async (net, webcamRef, canvasRef) => {
   if (typeof webcamRef.current === "undefined" || webcamRef.current === null || webcamRef.current.video.readyState !== 4) return ""
@@ -9,9 +9,9 @@ export const detect = async (net, webcamRef, canvasRef) => {
     width: window.innerWidth,
     height: window.innerHeight,
   }
-  const knownGestures = [ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
+  const knownGestures = [ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture, SixGesture, SevenGesture, EightGesture, NineGesture]
 
-  const CONFIDENCE = 5 // set estimate confidence above 50%
+  const CONFIDENCE = 7 // set estimate confidence above 70%
   const video = webcamRef.current.video
   const hand = await net.estimateHands(video)
 
