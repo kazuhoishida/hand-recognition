@@ -2,7 +2,7 @@ import { Finger, FingerCurl, FingerDirection } from "../FingerDescription"
 import GestureDescription from "../GestureDescription"
 
 // describe gesture ✊️
-const ZeroGesture = new GestureDescription("0")
+export const ZeroGesture = new GestureDescription("0")
 
 // thumb: half curled
 // accept no curl with a bit lower confidence
@@ -14,5 +14,3 @@ for (let finger of [Finger.Index, Finger.Middle, Finger.Ring, Finger.Pinky]) {
   ZeroGesture.addCurl(finger, FingerCurl.FullCurl, 1.0)
   ZeroGesture.addCurl(finger, FingerCurl.HalfCurl, 0.9)
 }
-
-export default ZeroGesture
