@@ -1,7 +1,7 @@
 import { Finger, FingerCurl, FingerDirection } from "../FingerDescription"
 import GestureDescription from "../GestureDescription"
 
-const OneGesture = new GestureDescription("1")
+export const OneGesture = new GestureDescription("1")
 
 // thumb:
 OneGesture.addCurl(Finger.Index, FingerCurl.NoCurl, 1.0)
@@ -18,5 +18,3 @@ for (let finger of [Finger.Middle, Finger.Ring, Finger.Pinky]) {
   OneGesture.addCurl(finger, FingerCurl.FullCurl, 1.0)
   OneGesture.addCurl(finger, FingerCurl.HalfCurl, 0.9)
 }
-
-export default OneGesture

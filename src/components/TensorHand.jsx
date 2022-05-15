@@ -78,8 +78,8 @@ export default function TensorHand() {
 
   return (
     <div className="relative w-1/2 h-full z-1">
-      <Webcam ref={webcamRef} muted={true} videoConstraints={videoConstraints} width={window.innerWidth / 2} height={window.innerHeight} className="absolute top-0 left-0 grayscale" />
-      <canvas ref={canvasRef} width={window.innerWidth / 2} height={window.innerHeight} className="absolute top-0 left-0" />
+      <Webcam ref={webcamRef} muted={true} videoConstraints={videoConstraints} width={window.innerWidth / 2} height={window.innerHeight} className="absolute top-0 left-0 grayscale" style={{ transform: "rotateY(180deg)" }} />
+      <canvas ref={canvasRef} width={window.innerWidth / 2} height={window.innerHeight} className="absolute top-0 left-0" style={{ transform: "rotateY(180deg)" }} />
       <p className="absolute bottom-4 right-4 z-50 text-20">{isConfidence}%</p>
     </div>
   )

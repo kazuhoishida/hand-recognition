@@ -1,7 +1,7 @@
 import { Finger, FingerCurl, FingerDirection } from "../FingerDescription"
 import GestureDescription from "../GestureDescription"
 
-const FourGesture = new GestureDescription("4")
+export const FourGesture = new GestureDescription("4")
 
 // thumb:
 FourGesture.addCurl(Finger.Thumb, FingerCurl.NoCurl, 1.0)
@@ -16,5 +16,3 @@ for (let finger of [Finger.Index, Finger.Middle, Finger.Ring, Finger.Pinky]) {
   FourGesture.addCurl(finger, FingerCurl.NoCurl, 1.0)
   FourGesture.addDirection(finger, FingerDirection.VerticalUp, 1.0)
 }
-
-export default FourGesture

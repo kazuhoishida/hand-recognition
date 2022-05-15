@@ -1,7 +1,7 @@
 import { Finger, FingerCurl, FingerDirection } from "../FingerDescription"
 import GestureDescription from "../GestureDescription"
 
-const TwoGesture = new GestureDescription("2")
+export const TwoGesture = new GestureDescription("2")
 
 // thumb:
 TwoGesture.addCurl(Finger.Index, FingerCurl.NoCurl, 0.8)
@@ -21,5 +21,3 @@ TwoGesture.addCurl(Finger.Ring, FingerCurl.FullCurl, 1.0)
 
 // pinky:
 TwoGesture.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1.0)
-
-export default TwoGesture

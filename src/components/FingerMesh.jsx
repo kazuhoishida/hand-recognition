@@ -27,7 +27,7 @@ export default function FingerMesh({ ...props }) {
     // if isSnap is a number, them slightly change the position of hand model
     if (!isNaN(isSnap)) {
       gsap.to(group.current.position, {
-        y: -0.6 * isSnap + 1,
+        y: -0.4 * isSnap + 1.5,
         duration: 0.5,
       })
     }

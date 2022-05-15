@@ -1,7 +1,7 @@
 import { Finger, FingerCurl, FingerDirection } from "../FingerDescription"
 import GestureDescription from "../GestureDescription"
 
-const ThreeGesture = new GestureDescription("3")
+export const ThreeGesture = new GestureDescription("3")
 
 // thumb:
 ThreeGesture.addDirection(Finger.Thumb, FingerDirection.VerticalUp, 1.0)
@@ -25,5 +25,3 @@ ThreeGesture.addCurl(Finger.Ring, FingerCurl.HalfCurl, 0.9)
 // pinky:
 ThreeGesture.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1.0)
 ThreeGesture.addCurl(Finger.Pinky, FingerCurl.HalfCurl, 0.9)
-
-export default ThreeGesture
