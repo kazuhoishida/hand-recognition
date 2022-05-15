@@ -7,6 +7,6 @@ const FiveGesture = new GestureDescription("5")
 for (let finger of Finger.all) {
   FiveGesture.addCurl(finger, FingerCurl.NoCurl, 1.0)
 }
-FiveGesture.addDirection(Finger.Thumb, FingerDirection.DiagonalUpRight, 1.0)
+FiveGesture.addDirection(Finger.Thumb, FingerDirection.DiagonalUpRight, 0.9)
 
 export default FiveGesture

@@ -4,28 +4,19 @@ import GestureDescription from "../GestureDescription"
 const OneGesture = new GestureDescription("1")
 
 // thumb:
-OneGesture.addDirection(Finger.Thumb, FingerDirection.VerticalUp, 1.0)
-OneGesture.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 1.0)
-OneGesture.addDirection(Finger.Thumb, FingerDirection.DiagonalUpRight, 1.0)
+OneGesture.addCurl(Finger.Index, FingerCurl.NoCurl, 1.0)
+OneGesture.addCurl(Finger.Index, FingerCurl.HalfCurl, 0.8)
 
 // index:
 OneGesture.addCurl(Finger.Index, FingerCurl.NoCurl, 1.0)
+OneGesture.addCurl(Finger.Index, FingerCurl.HalfCurl, 0.9)
 OneGesture.addDirection(Finger.Index, FingerDirection.VerticalUp, 1.0)
-OneGesture.addDirection(Finger.Index, FingerDirection.DiagonalUpLeft, 1.0)
-OneGesture.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 1.0)
-OneGesture.addDirection(Finger.Index, FingerDirection.HorizontalLeft, 1.0)
-OneGesture.addDirection(Finger.Index, FingerDirection.HorizontalRight, 1.0)
+OneGesture.addDirection(Finger.Index, FingerDirection.DiagonalUpLeft, 0.9)
+OneGesture.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 0.9)
 
-// middle:
-OneGesture.addCurl(Finger.Middle, FingerCurl.FullCurl, 1.0)
-OneGesture.addCurl(Finger.Middle, FingerCurl.HalfCurl, 0.9)
-
-// ring:
-OneGesture.addCurl(Finger.Ring, FingerCurl.FullCurl, 1.0)
-OneGesture.addCurl(Finger.Ring, FingerCurl.HalfCurl, 0.9)
-
-// pinky:
-OneGesture.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1.0)
-OneGesture.addCurl(Finger.Pinky, FingerCurl.HalfCurl, 0.9)
+for (let finger of [Finger.Middle, Finger.Ring, Finger.Pinky]) {
+  OneGesture.addCurl(finger, FingerCurl.FullCurl, 1.0)
+  OneGesture.addCurl(finger, FingerCurl.HalfCurl, 0.9)
+}
 
 export default OneGesture

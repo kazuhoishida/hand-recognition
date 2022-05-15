@@ -25,7 +25,7 @@ export default function TensorHand() {
     const net = await handpose.load()
     setInterval(() => {
       detectPlayerGesture(50, net)
-    }, 100)
+    }, 50)
   }
 
   function detectPlayerGesture(requiredDuration, net) {

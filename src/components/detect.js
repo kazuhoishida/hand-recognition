@@ -11,7 +11,7 @@ export const detect = async (net, webcamRef, canvasRef) => {
   }
   const knownGestures = [ThumbsUpGesture, ZeroGesture, OneGesture, TwoGesture, ThreeGesture, FourGesture, FiveGesture]
 
-  const CONFIDENCE = 5 // set estimate confidence above 50%
+  const CONFIDENCE = 7 // set estimate confidence above 70%
   const video = webcamRef.current.video
   const hand = await net.estimateHands(video)
 
