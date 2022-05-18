@@ -24,8 +24,8 @@ export default function TensorHand() {
   const runHandpose = async () => {
     const net = await handpose.load()
     setInterval(() => {
-      detectPlayerGesture(50, net)
-    }, 50)
+      detectPlayerGesture(33, net)
+    }, 33) //30fps
   }
 
   function detectPlayerGesture(requiredDuration, net) {
